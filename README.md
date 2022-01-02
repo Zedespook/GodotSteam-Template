@@ -14,32 +14,32 @@ The most important part of the script is:
 
 ```python
 func _read_P2P_Packet() -> void:
-	var PACKET_SIZE: int = Steam.getAvailableP2PPacketSize(0)
+    var PACKET_SIZE: int = Steam.getAvailableP2PPacketSize(0)
 
-	if PACKET_SIZE == 0:
-		return
+    if PACKET_SIZE == 0:
+        return
 
-	var PACKET = Steam.readP2PPacket(PACKET_SIZE, 0)
+    var PACKET = Steam.readP2PPacket(PACKET_SIZE, 0)
 
-	if PACKET.empty():
-		print("WARNING: read an empty packet with non-zero size!")
+    if PACKET.empty():
+        print("WARNING: read an empty packet with non-zero size!")
 
-	# var _PACKET_ID: String = str(PACKET.steamIDRemote)
-	# var _PACKET_CODE: String = str(PACKET.data[0])
-	var READABLE = bytes2var(PACKET.data.subarray(1, PACKET_SIZE - 1))
+    # var _PACKET_ID: String = str(PACKET.steamIDRemote)
+    # var _PACKET_CODE: String = str(PACKET.data[0])
+    var READABLE = bytes2var(PACKET.data.subarray(1, PACKET_SIZE - 1))
 
-	if str(READABLE.values()[0]) == "":
-		return
-	elif READABLE.values()[0] == "handshake":
-		print("A handshake was received.")
-	elif READABLE.values()[0] == "start_game":
-		print("Starting game...")
-		var _change_scene: int = get_tree().change_scene("res://source/game/game.tscn")
-	elif READABLE.values()[0] == "add_counter":
-		for node in get_tree().get_nodes_in_group("Game"):
-			node.add_to_counter()
+    if str(READABLE.values()[0]) == "":
+        return
+    elif READABLE.values()[0] == "handshake":
+        print("A handshake was received.")
+    elif READABLE.values()[0] == "start_game":
+        print("Starting game...")
+        var _change_scene: int = get_tree().change_scene("res://source/game/game.tscn")
+    elif READABLE.values()[0] == "add_counter":
+        for node in get_tree().get_nodes_in_group("Game"):
+            node.add_to_counter()
 
-	print("Readable packet: " + str(READABLE))
+    print("Readable packet: " + str(READABLE))
 ```
 
 All the packet reading logic is handled at the `if-switch` statement. A packet is a dictionary, so if your packets hold more information than just a message, like player position and such, then you can handle each key/value as their own data.
