@@ -11,12 +11,13 @@ config_version=4
 [application]
 
 config/name="Multibase"
-run/main_scene="res://source/lobby/lobby.tscn"
+run/main_scene="res://scenes/lobby/lobby.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
-Globals="*res://source/globals.gd"
+SteamHelper="*res://lib/steam_helper.gd"
+PacketManager="*res://lib/packet_manager.gd"
 
 [physics]
 

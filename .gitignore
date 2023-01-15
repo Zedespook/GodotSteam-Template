@@ -8,5 +8,6 @@ export_presets.cfg
 .mono/
 data_*/
 
-# VSCode specific
+# Editor specific ignores
 godot/.vscode/
+godot/venv/

@@ -1,4 +1,5 @@
 extends Node
+
 var OWNED: bool = false
 var ONLINE: bool = false
 var STEAM_ID: int = 0
@@ -47,22 +48,11 @@ func _read_P2P_Packet() -> void:
 	if PACKET.empty():
 		print("WARNING: read an empty packet with non-zero size!")
 
-	# var _PACKET_ID: String = str(PACKET.steamIDRemote)
-	# var _PACKET_CODE: String = str(PACKET.data[0])
+	var _PACKET_ID: String = str(PACKET.steamIDRemote)
+	var _PACKET_CODE: String = str(PACKET.data[0])
+
 	var READABLE = bytes2var(PACKET.data.subarray(1, PACKET_SIZE - 1))
-
-	if str(READABLE.values()[0]) == "":
-		return
-	elif READABLE.values()[0] == "handshake":
-		print("A handshake was received.")
-	elif READABLE.values()[0] == "start_game":
-		print("Starting game...")
-		var _change_scene: int = get_tree().change_scene("res://source/game/game.tscn")
-	elif READABLE.values()[0] == "add_counter":
-		for node in get_tree().get_nodes_in_group("Game"):
-			node.add_to_counter()
-
-	print("Readable packet: " + str(READABLE))
+	PacketManager.handle_packet(READABLE.values()[0])
 
 
 func send_P2P_Packet(target: String, packet_data: Dictionary) -> void:
@@ -77,11 +67,11 @@ func send_P2P_Packet(target: String, packet_data: Dictionary) -> void:
 		if LOBBY_MEMBERS.size() > 1:
 			for MEMBER in LOBBY_MEMBERS:
 				if MEMBER["steam_id"] != STEAM_ID:
-					var _tmp: int = Steam.sendP2PPacket(
+					var _send_to_all: int = Steam.sendP2PPacket(
 						MEMBER["steam_id"], _DATA, SEND_TYPE, CHANNEL
 					)
 		else:
-			var _tmp: int = Steam.sendP2PPacket(int(target), _DATA, SEND_TYPE, CHANNEL)
+			var _send_to_target: int = Steam.sendP2PPacket(int(target), _DATA, SEND_TYPE, CHANNEL)
 
 
 func make_P2P_Handshake() -> void:
@@ -96,43 +86,48 @@ func _on_P2P_Session_Request(remoteID: int) -> void:
 
 
 func _on_P2P_Session_Connect_Fail(lobbyID: int, session_error: int) -> void:
-	if session_error == 0:
-		print("WARNING: Session failure with " + str(lobbyID) + " [no error given].")
-	elif session_error == 1:
-		print(
-			(
-				"WARNING: Session failure with "
-				+ str(lobbyID)
-				+ " [target user not running the same game]."
+	match session_error:
+		0:
+			print("WARNING: Session failure with " + str(lobbyID) + " [no error given].")
+		1:
+			print(
+				(
+					"WARNING: Session failure with "
+					+ str(lobbyID)
+					+ " [target user not running the same game]."
+				)
 			)
-		)
-	elif session_error == 2:
-		print(
-			(
-				"WARNING: Session failure with "
-				+ str(lobbyID)
-				+ " [local user doesn't own app / game]."
+		2:
+			print(
+				(
+					"WARNING: Session failure with "
+					+ str(lobbyID)
+					+ " [local user doesn't own app / game]."
+				)
 			)
-		)
-	elif session_error == 3:
-		print(
-			(
-				"WARNING: Session failure with "
-				+ str(lobbyID)
-				+ " [target user isn't connected to Steam]."
+		3:
+			print(
+				(
+					"WARNING: Session failure with "
+					+ str(lobbyID)
+					+ " [target user isn't connected to Steam]."
+				)
 			)
-		)
-	elif session_error == 4:
-		print("WARNING: Session failure with " + str(lobbyID) + " [connection timed out].")
-	elif session_error == 5:
-		print("WARNING: Session failure with " + str(lobbyID) + " [unused].")
-	else:
-		print(
-			(
-				"WARNING: Session failure with "
-				+ str(lobbyID)
-				+ " [unknown error "
-				+ str(session_error)
-				+ "]."
+		4:
+			print(
+				(
+					"WARNING: Session failure with "
+					+ str(lobbyID)
+					+ " [target user doesn't own app / game]."
+				)
 			)
-		)
+		5:
+			print(
+				(
+					"WARNING: Session failure with "
+					+ str(lobbyID)
+					+ " [target user is not running the same game]."
+				)
+			)
+		_:
+			print("WARNING: Session failure with " + str(lobbyID) + " [unknown error].")
