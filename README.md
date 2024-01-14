@@ -1,5 +1,7 @@
 # GodotSteam Project Base
 
+**THIS PROJECT IS FOR GODOT 3, and therefore is outdated!**
+
 *Please note for this to work, you have to use [GodotSteam](https://gramps.github.io/GodotSteam/), because it will not work with a base Godot build. Make sure to read the [documentation on how to set it up](https://gramps.github.io/GodotSteam/howto-module.html).*
 
 ## How to use it?
